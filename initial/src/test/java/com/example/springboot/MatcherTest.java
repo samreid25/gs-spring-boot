@@ -47,31 +47,43 @@ public class MatcherTest {
     }
 
     @Test
-    @DisplayName("noMatch() sorts correctly")
-    public void noMatchSorting() {
+    @DisplayName("noMatch() sorts sell list correctly")
+    public void noMatchSortingSellList() {
         matcher.sell.clear();
         matcher.buy.clear();
         Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrow = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, -2);
-        Date yesterday = calendar.getTime();
-        Order firstSellElement = new Order(1, "SamReid", 10, 2, "sell", tomorrow);
-        Order secondSellElement = new Order(2, "SamReid", 10, 12, "sell", now);
-        Order thirdSellElement = new Order(3, "SamReid", 10, 19, "sell", yesterday);
-        matcher.noMatch(matcher.sell, thirdSellElement); //19, yesterday
-        matcher.noMatch(matcher.sell, firstSellElement); //2, tomorrow
-        matcher.noMatch(matcher.sell, secondSellElement); //12, now
-        //should be the order with the newest date
-        System.out.println("SELL 0 " + matcher.sell.get(0).getQuantity());
-        System.out.println("SELL 1 " + matcher.sell.get(1).getQuantity());
-        System.out.println("SELL 2 " + matcher.sell.get(2).getQuantity());
-        assertSame(firstSellElement, matcher.sell.get(0));
-        //should be the order with the middle date
-        assertSame(secondSellElement, matcher.sell.get(1));
-        //should be the order with the latest date
-        assertSame(thirdSellElement, matcher.sell.get(2));
+        Order firstSellElement = new Order(1, "SamReid", 10, 2, "sell", now);
+        Order secondSellElement = new Order(2, "SamReid", 1, 12, "sell", now);
+        Order thirdSellElement = new Order(3, "SamReid", 13, 19, "sell", now);
+        matcher.noMatch(matcher.sell, secondSellElement); //1
+        matcher.noMatch(matcher.sell, thirdSellElement); //13
+        matcher.noMatch(matcher.sell, firstSellElement); //10
+        //should be the order with the highest price
+        assertSame(thirdSellElement, matcher.sell.get(0));
+        //should be the order with the middle price
+        assertSame(firstSellElement, matcher.sell.get(1));
+        //should be the order with the lowest price
+        assertSame(secondSellElement, matcher.sell.get(2));
+    }
+
+    @Test
+    @DisplayName("noMatch() sorts buy list correctly")
+    public void noMatchSortingBuyList() {
+        matcher.sell.clear();
+        matcher.buy.clear();
+        Date now = new Date();
+        Order firstBuyElement = new Order(1, "SamReid", 13, 2, "buy", now);
+        Order secondBuyElement = new Order(2, "SamReid", 1, 12, "buy", now);
+        Order thirdBuyElement = new Order(3, "SamReid", 10, 19, "buy", now);
+        matcher.noMatch(matcher.buy, firstBuyElement); //13
+        matcher.noMatch(matcher.buy, secondBuyElement); //1
+        matcher.noMatch(matcher.buy, thirdBuyElement); //10
+        //should be the order with the highest price
+        assertSame(secondBuyElement, matcher.buy.get(0));
+        //should be the order with the middle price
+        assertSame(thirdBuyElement, matcher.buy.get(1));
+        //should be the order with the lowest price
+        assertSame(firstBuyElement, matcher.buy.get(2));
     }
 
     @Test
@@ -81,14 +93,9 @@ public class MatcherTest {
         matcher.buy.clear();
         matcher.trades.clear();
         Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrow = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date nextDay = calendar.getTime();
         Order firstSellElement = new Order(1, "SamReid", 10, 12, "sell", now);
-        Order secondSellElement = new Order(2, "SamReid", 12, 2, "sell", tomorrow);
-        Order buyExample = new Order(3, "SamReid", 12, 12, "buy", nextDay);
+        Order secondSellElement = new Order(2, "SamReid", 12, 2, "sell", now);
+        Order buyExample = new Order(3, "SamReid", 12, 12, "buy", now);
         matcher.sell.add(firstSellElement);
         matcher.sell.add(secondSellElement);
         matcher.sameQuantity(matcher.sell, matcher.sell.get(0), buyExample);
@@ -113,14 +120,9 @@ public class MatcherTest {
         matcher.buy.clear();
         matcher.trades.clear();
         Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrow = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date nextDay = calendar.getTime();
         Order firstBuyElement = new Order(1, "SamReid", 19, 1, "buy", now);
-        Order secondBuyElement = new Order(2, "SamReid", 13, 14, "buy", tomorrow);
-        Order sellExample = new Order(3, "SamReid", 18, 1, "sell", nextDay);
+        Order secondBuyElement = new Order(2, "SamReid", 13, 14, "buy", now);
+        Order sellExample = new Order(3, "SamReid", 18, 1, "sell", now);
         matcher.buy.add(firstBuyElement);
         matcher.buy.add(secondBuyElement);
         matcher.sameQuantity(matcher.buy, matcher.buy.get(0), sellExample);
@@ -145,14 +147,9 @@ public class MatcherTest {
         matcher.buy.clear();
         matcher.trades.clear();
         Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrow = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date nextDay = calendar.getTime();
         Order firstSellElement = new Order(1, "SamReid", 10, 17, "sell", now);
-        Order secondSellElement = new Order(2, "SamReid", 12, 12, "sell", tomorrow);
-        Order buyExample = new Order(3, "SamReid", 12, 12, "buy", nextDay);
+        Order secondSellElement = new Order(2, "SamReid", 12, 12, "sell", now);
+        Order buyExample = new Order(3, "SamReid", 12, 12, "buy", now);
         matcher.sell.add(firstSellElement);
         matcher.sell.add(secondSellElement);
         matcher.moreQuantity(matcher.sell, matcher.sell.get(0), buyExample);
@@ -181,14 +178,9 @@ public class MatcherTest {
         matcher.buy.clear();
         matcher.trades.clear();
         Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrow = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date nextDay = calendar.getTime();
         Order firstBuyElement = new Order(1, "SamReid", 18, 19, "buy", now);
-        Order secondBuyElement = new Order(2, "SamReid", 7, 12, "buy", tomorrow);
-        Order sellExample = new Order(3, "SamReid", 16, 12, "sell", nextDay);
+        Order secondBuyElement = new Order(2, "SamReid", 7, 12, "buy", now);
+        Order sellExample = new Order(3, "SamReid", 16, 12, "sell", now);
         matcher.buy.add(firstBuyElement);
         matcher.buy.add(secondBuyElement);
         matcher.moreQuantity(matcher.buy, matcher.buy.get(0), sellExample);
@@ -217,14 +209,9 @@ public class MatcherTest {
         matcher.buy.clear();
         matcher.trades.clear();
         Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrow = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date nextDay = calendar.getTime();
         Order firstSellElement = new Order(1, "SamReid", 10, 17, "sell", now);
-        Order secondSellElement = new Order(2, "SamReid", 12, 12, "sell", tomorrow);
-        Order buyExample = new Order(3, "SamReid", 12, 20, "buy", nextDay);
+        Order secondSellElement = new Order(2, "SamReid", 12, 12, "sell", now);
+        Order buyExample = new Order(3, "SamReid", 12, 20, "buy", now);
         matcher.sell.add(firstSellElement);
         matcher.sell.add(secondSellElement);
         matcher.lessQuantity(matcher.sell, matcher.sell.get(0), buyExample);
@@ -255,17 +242,10 @@ public class MatcherTest {
         matcher.buy.clear();
         matcher.trades.clear();
         Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrow = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date nextDay = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date dayAfterNext = calendar.getTime();
         Order firstBuyElement = new Order(1, "SamReid", 19, 7, "buy", now);
-        Order secondBuyElement = new Order(2, "SamReid", 12, 12, "buy", tomorrow);
-        Order thirdBuyElement = new Order(3, "SamReid", 2, 20, "buy", dayAfterNext);
-        Order sellExample = new Order(4, "SamReid", 2, 28, "sell", nextDay);
+        Order secondBuyElement = new Order(2, "SamReid", 12, 12, "buy", now);
+        Order thirdBuyElement = new Order(3, "SamReid", 2, 20, "buy", now);
+        Order sellExample = new Order(4, "SamReid", 2, 28, "sell", now);
         matcher.buy.add(firstBuyElement);
         matcher.buy.add(secondBuyElement);
         matcher.buy.add(thirdBuyElement);
@@ -301,11 +281,8 @@ public class MatcherTest {
         matcher.buy.clear();
         matcher.trades.clear();
         Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrow = calendar.getTime();
         Order firstSellElement = new Order(1, "SamReid", 10, 17, "sell", now);
-        Order secondSellElement = new Order(2, "SamReid", 12, 12, "sell", tomorrow);
+        Order secondSellElement = new Order(2, "SamReid", 12, 12, "sell", now);
         matcher.sell.add(firstSellElement);
         matcher.sell.add(secondSellElement);
         matcher.newOrder("SamReid", 12, 40, "buy");
@@ -336,14 +313,9 @@ public class MatcherTest {
         matcher.buy.clear();
         matcher.trades.clear();
         Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrow = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date nextDay = calendar.getTime();
         Order firstBuyElement = new Order(1, "SamReid", 106, 17, "buy", now);
-        Order secondBuyElement = new Order(2, "SamReid", 42, 26, "buy", tomorrow);
-        Order thirdBuyElement = new Order(2, "SamReid", 19, 16, "buy", nextDay);
+        Order secondBuyElement = new Order(2, "SamReid", 42, 26, "buy", now);
+        Order thirdBuyElement = new Order(2, "SamReid", 19, 16, "buy", now);
         matcher.buy.add(firstBuyElement);
         matcher.buy.add(secondBuyElement);
         matcher.buy.add(thirdBuyElement);
