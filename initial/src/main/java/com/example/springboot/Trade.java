@@ -1,9 +1,21 @@
 package com.example.springboot;
 
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 import java.util.Date;
 
+/**
+ * Trade type that can be attached to a trade variable declaration.
+ * Trades are used to contain information on a trade that has happened.
+ *
+ * @author Samantha Reid
+ */
 public class Trade {
+    @NotNull @Min(1)
     private int id, price, quantity;
+    @NotNull @FutureOrPresent
     private Date dateTime;
 
     Trade(int id, int price, int quantity, Date dateTime)
