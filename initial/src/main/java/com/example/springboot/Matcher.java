@@ -1,10 +1,22 @@
 package com.example.springboot;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import java.util.*;
 
+/**
+ * Matcher is a class that handles the trading application.
+ * Orders are used to contain information on an order.
+ *
+ * @author Samantha Reid
+ */
 public class Matcher {
+    @NotNull
     protected ArrayList<Order> sell;
+    @NotNull
     protected ArrayList<Order> buy;
+    @NotNull
     protected ArrayList<Trade> trades;
     protected final String BUY = "buy";
     protected final String SELL = "sell";
@@ -18,12 +30,11 @@ public class Matcher {
 
     public boolean newOrder(String account, int price, int quantity, String action) {
         // validate input, add more
-        if (action.equals(BUY) || action.equals(SELL)) {
+        if (price > 0 && quantity > 0 && (action.equals(BUY) || action.equals(SELL))) {
             final Date now = new Date();
-            //boolean newOrder = false;
             if (action.equals(BUY)) {
                     final int id = nextId(buy);
-                    final Order order = new Order(id, account, price, quantity, action, now);
+                    @Valid final Order order = new Order(id, account, price, quantity, action, now);
                     final boolean isMatch = lookForMatch(sell, order);
                     if (!isMatch) {
                         // no match
@@ -52,7 +63,6 @@ public class Matcher {
                 ArrayList<Order> tempList = new ArrayList<>(buyOrSellList);
                 Comparator<Order> byId = Comparator.comparingInt(Order::getId);
                 tempList.sort(byId);
-                //does this work?
                 //tempList.sort(Comparator.comparingInt(Order::getId));
                 final int maxId = tempList.get(tempList.size() - 1).getId();
                 return maxId + 1;
@@ -67,7 +77,6 @@ public class Matcher {
             ArrayList<Trade> tempList = new ArrayList<>(buyOrSellList);
 //        Comparator<Order> byId = Comparator.comparingInt(Order::getId);
 //        tempList.sort(byId);
-            //does this work?
             Collections.sort(tempList, Comparator.comparingInt(Trade::getId));
             final int maxId = tempList.get(tempList.size() - 1).getId();
             return maxId + 1;
@@ -110,7 +119,6 @@ public class Matcher {
         final int id = nextTradeId(trades);
         // create a trade with existing price and new order quantity
         createTrade(id, element.getPrice(), order.getQuantity());
-        // ------------- does this work? ---------
         buyOrSellList.remove(element); // remove it from the list
         order.setQuantity(0); // make the remaining order quantity equal to 0
         if (order.getAction().equals(BUY)) {
@@ -160,7 +168,22 @@ public class Matcher {
 
     protected void createTrade(int id, int price, int quantity) {
         final Date now = new Date();
-        final Trade trade = new Trade(id, price, quantity, now);
+        @Valid final Trade trade = new Trade(id, price, quantity, now);
         trades.add(trade);
+    }
+
+    public ArrayList<Order> getBuy(){
+        return this.buy;
+    }
+
+    public ArrayList<Order> getSell(){
+        return this.sell;
+    }
+
+    public ArrayList[] getOrders(){
+        ArrayList[] orders = new ArrayList[2];
+        orders[0] = this.buy;
+        orders[1] = this.sell;
+        return orders;
     }
 }
